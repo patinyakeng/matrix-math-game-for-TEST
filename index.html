@@ -118,29 +118,29 @@ const linComb = (k,l)=> term(k,'A')+(l>=0?' + ':' − ')+(Math.abs(l)===1?'B':Ma
 function makeBlueprints(){
   const bp = [];
   // Q1 A+B 2x3
-  bp.push({id:1, type:'A+B', dims:[2,3], prompt:'ข้อ 1) คำนวณ A + B (2×3)'});
+  bp.push({id:1, type:'A+B', dims:[2,3], prompt:'ข้อ 1) จงหาเมทริกซ์ A + B '});
   // Q2 A-B 3x3
-  bp.push({id:2, type:'A-B', dims:[3,3], prompt:'ข้อ 2) คำนวณ A − B (3×3)'});
+  bp.push({id:2, type:'A-B', dims:[3,3], prompt:'ข้อ 2) จงหาเมทริกซ์ A − B '});
   // Q3 kA + lB (2x2)
   const k3=coefNZ(), l3=coefNZ();
-  bp.push({id:3, type:'kA+lB', dims:[2,2], k:k3, l:l3, prompt:`ข้อ 3) คำนวณ ${linComb(k3,l3)} (2×2)`});
+  bp.push({id:3, type:'kA+lB', dims:[2,2], k:k3, l:l3, prompt:`ข้อ 3) จงหาเมทริกซ์ ${linComb(k3,l3)} (2×2)`});
   // Q4 A=B (2x2) หา x — กำหนด a,c,pos,x เหมือนกัน
   const a4=rint(1,3), c4=rint(-5,5), pos4=[rint(0,1), rint(0,1)], x4=rint(-5,5);
-  bp.push({id:4, type:'solveX', dims:[2,2], a:a4, c:c4, pos:pos4, x:x4, prompt:'ข้อ 4) ให้ A = B (2×2) จงหาค่า x'});
+  bp.push({id:4, type:'solveX', dims:[2,2], a:a4, c:c4, pos:pos4, x:x4, prompt:'ข้อ 4) ให้เมทริกซ์ A = B จงหาค่าของ x'});
   // Q5 A×B 2x2
-  bp.push({id:5, type:'mul', dims:[2,2], prompt:'ข้อ 5) คูณเมทริกซ์ A × B (2×2)'});
+  bp.push({id:5, type:'mul', dims:[2,2], prompt:'ข้อ 5) จงหาเมทริกซ์ A × B '});
   // Q6 A^T ± B (A 2x3, B 3x2) — op เหมือนกัน
   const op6 = Math.random()<.5 ? '+' : '−';
-  bp.push({id:6, type:'At±B', dims:[2,3], op:op6, prompt:`ข้อ 6) คำนวณ Aᵀ ${op6} B (A:2×3, B:3×2)`});
+  bp.push({id:6, type:'At±B', dims:[2,3], op:op6, prompt:`ข้อ 6) จงหาเมทริกซ์ Aᵀ ${op6} B `});
   // Q7 2A + 3B^T (2x2)
-  bp.push({id:7, type:'2A+3Bt', dims:[2,2], prompt:'ข้อ 7) คำนวณ 2A + 3Bᵀ (2×2)'});
+  bp.push({id:7, type:'2A+3Bt', dims:[2,2], prompt:'ข้อ 7) จงหาเมทริกซ์ 2A + 3Bᵀ '});
   // Q8 det 2x2
-  bp.push({id:8, type:'det2', dims:[2,2], prompt:'ข้อ 8) จงหา det(A) (2×2)'});
+  bp.push({id:8, type:'det2', dims:[2,2], prompt:'ข้อ 8) จงหา det(A) '});
   // Q9 det 3x3
-  bp.push({id:9, type:'det3', dims:[3,3], prompt:'ข้อ 9) จงหา det(A) (3×3)'});
+  bp.push({id:9, type:'det3', dims:[3,3], prompt:'ข้อ 9) จงหา det(A) '});
   // Q10 det of kA + lB (2x2) — k,l เหมือนกัน
   const k10=coefNZ(), l10=coefNZ();
-  bp.push({id:10, type:'det(kA+lB)', dims:[2,2], k:k10, l:l10, prompt:`ข้อ 10) คำนวณ ${linComb(k10,l10)} แล้วหา det (2×2)`});
+  bp.push({id:10, type:'det(kA+lB)', dims:[2,2], k:k10, l:l10, prompt:`ข้อ 10) จงหา det ของ ${linComb(k10,l10)} `});
   return bp;
 }
 
