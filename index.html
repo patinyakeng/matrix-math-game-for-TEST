@@ -123,7 +123,7 @@ function makeBlueprints(){
   bp.push({id:2, type:'A-B', dims:[3,3], prompt:'ข้อ 2) จงหาเมทริกซ์ A − B '});
   // Q3 kA + lB (2x2)
   const k3=coefNZ(), l3=coefNZ();
-  bp.push({id:3, type:'kA+lB', dims:[2,2], k:k3, l:l3, prompt:`ข้อ 3) จงหาเมทริกซ์ ${linComb(k3,l3)} (2×2)`});
+  bp.push({id:3, type:'kA+lB', dims:[2,2], k:k3, l:l3, prompt:`ข้อ 3) จงหาเมทริกซ์ ${linComb(k3,l3)} `});
   // Q4 A=B (2x2) หา x — กำหนด a,c,pos,x เหมือนกัน
   const a4=rint(1,3), c4=rint(-5,5), pos4=[rint(0,1), rint(0,1)], x4=rint(-5,5);
   bp.push({id:4, type:'solveX', dims:[2,2], a:a4, c:c4, pos:pos4, x:x4, prompt:'ข้อ 4) ให้เมทริกซ์ A = B จงหาค่าของ x'});
