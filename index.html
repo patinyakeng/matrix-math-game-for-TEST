@@ -21,15 +21,20 @@
     .btn-ghost{background:#f3f4f6;border:1px solid var(--border);color:#111827}
     .btn-primary{background:var(--accent);color:#fff;font-weight:600}
     .btn:disabled{opacity:.6;cursor:not-allowed}
-    .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+
+    /* top bar */
+    .topbar{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+    .top-left{display:flex;align-items:center;gap:12px}
+    .top-center{flex:1 1 auto;text-align:center}
+    .credit{font-size:12px;color:var(--muted);line-height:1.2}
+    .top-right{display:flex;align-items:center;gap:8px}
     .time{font-variant-numeric:tabular-nums;font-weight:700}
     .time.warn{color:var(--warn)}
     .time.dead{color:var(--bad)}
+    .full{flex-basis:100%}
     .grid-nav{display:grid;grid-template-columns:repeat(10,1fr);gap:8px}
     .qbtn{padding:8px 0;border-radius:10px;border:1px solid var(--border);background:#f3f4f6;color:#6b7280}
     .qbtn.current{outline:2px solid var(--accent);background:#dbeafe;color:#007aff}
-
-    .credit{font-size:12px;color:var(--muted);text-align:center;margin-top:8px}
 
     .split{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:14px}
     .split::before{content:"";position:absolute;top:0;bottom:0;left:50%;width:2px;background:var(--border);transform:translateX(-1px);pointer-events:none}
@@ -44,19 +49,11 @@
     .solutions{display:grid;grid-template-columns:1fr 1fr;gap:20px}
     .ans-card{border:1px solid var(--border);border-radius:12px;padding:12px;background:#f9fafb;margin-bottom:10px}
 
-    /* Sticky header for answer page */
-    .sticky-head{
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      background: var(--card);
-      margin: -16px -16px 12px -16px;
-      padding: 12px 16px 10px 16px;
-      border-bottom: 1px solid var(--border);
-      box-shadow: 0 2px 6px rgba(0,0,0,.04);
-    }
-    .sticky-head h1{ margin:0 0 6px; text-align:center; }
-    .sticky-head p{ margin:0; text-align:center; }
+    /* Sticky header (answer page) */
+    .sticky-head{position:sticky;top:0;z-index:20;background:var(--card);
+      margin:-16px -16px 12px -16px;padding:12px 16px 10px;border-bottom:1px solid var(--border);box-shadow:0 2px 6px rgba(0,0,0,.04)}
+    .sticky-head h1{margin:0 0 6px;text-align:center}
+    .sticky-head p{margin:0;text-align:center}
 
     @media (max-width: 900px){
       .split{grid-template-columns:1fr}
@@ -67,21 +64,28 @@
 </head>
 <body>
 <div class="wrap">
-  <!-- TOP: timer + nav (ซ่อนเมื่อกดเฉลย) -->
+  <!-- TOP: timer + credit + nav -->
   <div id="topbar" class="topbar card">
-    <div>
+    <div class="top-left">
       <span class="pill"><strong>เวลาที่เหลือ:</strong> <span id="timeLeft" class="time">30:00</span></span>
       <button id="add5" class="btn btn-ghost">ต่อเวลาพิเศษ +5 นาที</button>
     </div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+
+    <!-- ⬇️ เครดิตย้ายขึ้นมากึ่งกลางด้านบน -->
+    <div class="top-center">
+      <div class="credit">
+        จัดทำและพัฒนาโดย คุณครูปฏิญญา มุ่งหมาย กลุ่มสาระการเรียนรู้คณิตศาสตร์ โรงเรียนขอนแก่นวิทยายน
+      </div>
+    </div>
+
+    <div class="top-right">
       <button id="prevBtn" class="btn btn-ghost">◀ ก่อนหน้า</button>
       <button id="nextBtn" class="btn btn-ghost">ถัดไป ▶</button>
       <button id="showAns" class="btn btn-primary">เฉลย</button>
     </div>
-    <div style="flex-basis:100%">
+
+    <div class="full">
       <div id="navGrid" class="grid-nav" style="margin-top:8px"></div>
-      <!-- ⬇️ บรรทัดเครดิตที่เพิ่ม -->
-      <p class="credit">จัดทำและพัฒนาโดย คุณครูปฏิญญา มุ่งหมาย กลุ่มสาระการเรียนรู้คณิตศาสตร์ โรงเรียนขอนแก่นวิทยายน</p>
     </div>
   </div>
 
@@ -223,4 +227,66 @@ function fmtM(M){let h='<div class="mwrap"><table class="matrix">';for(let i=0;i
 function renderOne(q){
   let html = `<div style="font-weight:700;margin-bottom:8px">${q.prompt}</div>`;
   if(q.data){
-    if(q
+    if(q.data.A) html += `<div class="mx"><span class="badge">A</span>${fmtM(q.data.A)}</div>`;
+    if(q.data.B) html += `<div class="mx"><span class="badge">B</span>${fmtM(q.data.B)}</div>`;
+  }
+  return html;
+}
+function renderPair(){
+  leftProblem.innerHTML = renderOne(leftQs[idx]);
+  rightProblem.innerHTML = renderOne(rightQs[idx]);
+  updateNavState();
+}
+function buildNav(){
+  navGrid.innerHTML='';
+  for(let i=0;i<10;i++){
+    const b=document.createElement('button');
+    b.className='qbtn'; b.textContent=i+1;
+    b.addEventListener('click',()=>{idx=i;renderPair();});
+    navGrid.appendChild(b);
+  }
+  updateNavState();
+}
+function updateNavState(){
+  Array.from(navGrid.children).forEach((b,i)=> b.classList.toggle('current', i===idx));
+}
+document.getElementById('prevBtn').addEventListener('click',()=>{idx=Math.max(0,idx-1);renderPair();});
+document.getElementById('nextBtn').addEventListener('click',()=>{idx=Math.min(9,idx+1);renderPair();});
+
+/* ---------- answers ---------- */
+function fmtAns(q){
+  if(q.kind==='number') return `<div class="mwrap" style="display:inline-block"><b>${q.answer}</b></div>`;
+  return fmtM(q.answer);
+}
+function renderSolutions(){
+  leftSolutions.innerHTML=''; rightSolutions.innerHTML='';
+  leftQs.forEach(q=>{const c=document.createElement('div');c.className='ans-card';c.innerHTML=`<div><strong>ข้อ ${q.id}</strong></div>${fmtAns(q)}`;leftSolutions.appendChild(c);});
+  rightQs.forEach(q=>{const c=document.createElement('div');c.className='ans-card';c.innerHTML=`<div><strong>ข้อ ${q.id}</strong></div>${fmtAns(q)}`;rightSolutions.appendChild(c);});
+}
+document.getElementById('showAns').addEventListener('click',()=>{
+  renderSolutions(); qView.style.display='none'; aView.style.display='block'; topbar.style.display='none';
+});
+document.getElementById('backBtn').addEventListener('click',()=>{
+  aView.style.display='none'; qView.style.display='block'; topbar.style.display='';
+});
+
+/* ---------- countdown ---------- */
+const timeEl = document.getElementById('timeLeft');
+const add5 = document.getElementById('add5');
+let remain = 30*60; // 30 นาที
+function fmtTime(s){s=Math.max(0,s|0);const m=Math.floor(s/60),ss=s%60;return `${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;}
+function tick(){
+  remain--; if(remain<=0){remain=0;timeEl.classList.add('dead');}
+  else if(remain<=5*60){timeEl.classList.add('warn');}
+  timeEl.textContent = fmtTime(remain);
+}
+timeEl.textContent = fmtTime(remain);
+const tmr = setInterval(tick, 1000);
+add5.addEventListener('click',()=>{remain+=5*60;timeEl.classList.remove('dead');timeEl.textContent=fmtTime(remain);});
+
+/* ---------- init ---------- */
+buildNav();
+renderPair();
+</script>
+</body>
+</html>
