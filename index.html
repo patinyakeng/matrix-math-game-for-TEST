@@ -40,11 +40,22 @@
     .split::before{content:"";position:absolute;top:0;bottom:0;left:50%;width:2px;background:var(--border);transform:translateX(-1px);pointer-events:none}
     .panel{border:1px solid var(--border);border-radius:12px;padding:12px;background:#fff}
     .panel h3{margin:0 0 10px}
-    .badge{font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid var(--border);color:var(--muted)}
-    .mwrap{display:inline-block;border:1px solid var(--border);border-radius:10px;padding:10px;background:#f9fafb}
+
+    /* ✅ แสดงเมทริกซ์แนวนอนบรรทัดเดียว */
+    .mx-row{display:flex;gap:24px;align-items:center;flex-wrap:nowrap}
+    .badge{font-size:16px;padding:4px 12px;border-radius:999px;border:1px solid var(--border);color:var(--muted);background:#fff}
+    .qtitle{font-size:20px;font-weight:700;margin:8px 0 12px}
+
+    .mwrap{display:inline-block;border:1px solid var(--border);border-radius:12px;padding:14px;background:#f9fafb}
     table.matrix{border-collapse:collapse}
-    table.matrix td{border:1px solid #cbd5e1;padding:6px 10px;text-align:center;min-width:32px}
-    .mx{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    /* ✅ ขยายช่อง/ตัวเลข ให้ชัด */
+    table.matrix td{
+      border:1px solid #cbd5e1;
+      width:72px;height:72px;
+      text-align:center;
+      font-size:28px;font-weight:700;
+      line-height:1;
+    }
 
     .solutions{display:grid;grid-template-columns:1fr 1fr;gap:20px}
     .ans-card{border:1px solid var(--border);border-radius:12px;padding:12px;background:#f9fafb;margin-bottom:10px}
@@ -55,10 +66,13 @@
     .sticky-head h1{margin:0 0 6px;text-align:center}
     .sticky-head p{margin:0;text-align:center}
 
+    /* ขนาดสำหรับจอเล็ก ลดลงเล็กน้อย */
     @media (max-width: 900px){
       .split{grid-template-columns:1fr}
       .split::before{display:none}
       .solutions{grid-template-columns:1fr}
+      .mx-row{flex-wrap:wrap}
+      table.matrix td{width:54px;height:54px;font-size:22px}
     }
   </style>
 </head>
@@ -87,7 +101,7 @@
 
   <!-- QUESTIONS -->
   <section id="qView" class="card">
-    <h1 style="text-align:center">Matrix Exam – แถวคี่ vs แถวคู่</h1>
+    <h1 style="text-align:center">Matrix Exam</h1>
     <p style="text-align:center" class="muted">ฝั่งซ้าย: <b>แถวคี่ (1,3,5)</b> | ฝั่งขวา: <b>แถวคู่ (2,4,6)</b></p>
 
     <div class="split">
@@ -105,7 +119,7 @@
   <!-- ANSWERS -->
   <section id="aView" class="card" style="display:none">
     <div class="sticky-head">
-      <h1>เฉลย – คำถามเต็ม + คำตอบ</h1>
+      <h1>เฉลย</h1>
       <p class="muted">ฝั่งซ้าย: <b>แถวคี่ (1,3,5)</b> | ฝั่งขวา: <b>แถวคู่ (2,4,6)</b></p>
     </div>
     <div class="solutions">
@@ -140,7 +154,7 @@ const coefNZ = ()=> [-3,-2,-1,1,2,3][rint(0,5)];
 const term = (k,s)=> k===1?s:(k===-1?'−'+s:(k<0?'−'+Math.abs(k):k)+s);
 const linComb = (k,l)=> term(k,'A')+(l>=0?' + ':' − ')+(Math.abs(l)===1?'B':Math.abs(l)+'B');
 
-/* ---------- blueprints: ตัดข้อความมิติออก ---------- */
+/* ---------- blueprints (ไม่ระบุมิติในข้อความ) ---------- */
 function makeBlueprints(){
   const bp = [];
   bp.push({type:'A+B',    dims:[2,3], title:'จงหาเมทริกซ์ A + B'});
@@ -218,12 +232,9 @@ let bp = makeBlueprints();
 let leftQs = buildSetFromBP(bp);
 let rightQs = buildSetFromBP(bp);
 
-/* === สุ่มลำดับ 10 ข้อให้เหมือนกันทั้งสองฝั่ง === */
+/* สุ่มลำดับเหมือนกันทั้งสองฝั่ง */
 const order = Array.from({length: leftQs.length}, (_,i)=>i);
-for (let i = order.length - 1; i > 0; i--) {
-  const j = Math.floor(Math.random() * (i + 1));
-  [order[i], order[j]] = [order[j], order[i]];
-}
+for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
 leftQs  = order.map(i => leftQs[i]);
 rightQs = order.map(i => rightQs[i]);
 
@@ -234,16 +245,25 @@ function fmtM(M){
   for(let i=0;i<M.length;i++){h+='<tr>';for(let j=0;j<M[0].length;j++)h+=`<td>${M[i][j]}</td>`;h+='</tr>'}
   h+='</table></div>';return h
 }
+const badge = s => `<span class="badge">${s}</span>`;
+
+/* ✅ ทำให้ A และ B อยู่แถวเดียวกัน */
 function renderQuestionBody(q){
   let html = '';
-  if(q.data){
-    if(q.data.A) html += `<div class="mx"><span class="badge">A</span>${fmtM(q.data.A)}</div>`;
-    if(q.data.B) html += `<div class="mx"><span class="badge">B</span>${fmtM(q.data.B)}</div>`;
+  if(!q.data) return html;
+  const A = q.data.A, B = q.data.B;
+
+  if(A && B){
+    html += `<div class="mx-row">${badge('A')}${fmtM(A)} ${badge('B')}${fmtM(B)}</div>`;
+  }else{
+    if(A) html += `<div class="mx-row">${badge('A')}${fmtM(A)}</div>`;
+    if(B) html += `<div class="mx-row">${badge('B')}${fmtM(B)}</div>`;
   }
   return html;
 }
+
 function renderOne(q, nIdx){
-  return `<div style="font-weight:700;margin-bottom:8px">ข้อ ${nIdx+1}) ${q.title}</div>${renderQuestionBody(q)}`;
+  return `<div class="qtitle">ข้อ ${nIdx+1}) ${q.title}</div>${renderQuestionBody(q)}`;
 }
 function renderPair(){
   leftProblem.innerHTML  = renderOne(leftQs[idx], idx);
@@ -266,19 +286,16 @@ function updateNavState(){
 document.getElementById('prevBtn').addEventListener('click',()=>{idx=Math.max(0,idx-1);renderPair();});
 document.getElementById('nextBtn').addEventListener('click',()=>{idx=Math.min(leftQs.length-1,idx+1);renderPair();});
 
-/* ---------- answers (แสดงโจทย์เต็ม + คำตอบ) ---------- */
-function fmtAns(q){
-  if(q.kind==='number') return `<div class="mwrap" style="display:inline-block"><b>${q.answer}</b></div>`;
-  return fmtM(q.answer);
-}
+/* ---------- answers (โจทย์เต็ม + คำตอบ) ---------- */
+function fmtAns(q){ return q.kind==='number' ? `<div class="mwrap" style="display:inline-block"><b>${q.answer}</b></div>` : fmtM(q.answer); }
 function renderSolutions(){
   leftSolutions.innerHTML=''; rightSolutions.innerHTML='';
   leftQs.forEach((q,i)=>{
     const c=document.createElement('div'); c.className='ans-card';
     c.innerHTML = `
-      <div style="font-weight:700;margin-bottom:8px">ข้อ ${i+1}) ${q.title}</div>
+      <div class="qtitle" style="margin-top:0">ข้อ ${i+1}) ${q.title}</div>
       ${renderQuestionBody(q)}
-      <div class="muted" style="margin-top:8px">คำตอบ:</div>
+      <div class="muted" style="margin:10px 0 6px">คำตอบ:</div>
       ${fmtAns(q)}
     `;
     leftSolutions.appendChild(c);
@@ -286,9 +303,9 @@ function renderSolutions(){
   rightQs.forEach((q,i)=>{
     const c=document.createElement('div'); c.className='ans-card';
     c.innerHTML = `
-      <div style="font-weight:700;margin-bottom:8px">ข้อ ${i+1}) ${q.title}</div>
+      <div class="qtitle" style="margin-top:0">ข้อ ${i+1}) ${q.title}</div>
       ${renderQuestionBody(q)}
-      <div class="muted" style="margin-top:8px">คำตอบ:</div>
+      <div class="muted" style="margin:10px 0 6px">คำตอบ:</div>
       ${fmtAns(q)}
     `;
     rightSolutions.appendChild(c);
