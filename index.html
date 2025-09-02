@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Matrix Exam</title>
+  <title>Matrix Exam – แถวคี่ vs แถวคู่</title>
   <link rel="icon" href="data:,">
   <style>
     :root{
@@ -64,26 +64,22 @@
 </head>
 <body>
 <div class="wrap">
-  <!-- TOP: timer + credit + nav -->
+  <!-- TOP -->
   <div id="topbar" class="topbar card">
     <div class="top-left">
       <span class="pill"><strong>เวลาที่เหลือ:</strong> <span id="timeLeft" class="time">30:00</span></span>
       <button id="add5" class="btn btn-ghost">ต่อเวลาพิเศษ +5 นาที</button>
     </div>
-
-    <!-- ⬇️ เครดิตย้ายขึ้นมากึ่งกลางด้านบน -->
     <div class="top-center">
       <div class="credit">
         จัดทำและพัฒนาโดย คุณครูปฏิญญา มุ่งหมาย กลุ่มสาระการเรียนรู้คณิตศาสตร์ โรงเรียนขอนแก่นวิทยายน
       </div>
     </div>
-
     <div class="top-right">
       <button id="prevBtn" class="btn btn-ghost">◀ ก่อนหน้า</button>
       <button id="nextBtn" class="btn btn-ghost">ถัดไป ▶</button>
       <button id="showAns" class="btn btn-primary">เฉลย</button>
     </div>
-
     <div class="full">
       <div id="navGrid" class="grid-nav" style="margin-top:8px"></div>
     </div>
@@ -91,7 +87,7 @@
 
   <!-- QUESTIONS -->
   <section id="qView" class="card">
-    <h1 style="text-align:center">Matrix Exam</h1>
+    <h1 style="text-align:center">Matrix Exam – แถวคี่ vs แถวคู่</h1>
     <p style="text-align:center" class="muted">ฝั่งซ้าย: <b>แถวคี่ (1,3,5)</b> | ฝั่งขวา: <b>แถวคู่ (2,4,6)</b></p>
 
     <div class="split">
@@ -109,7 +105,7 @@
   <!-- ANSWERS -->
   <section id="aView" class="card" style="display:none">
     <div class="sticky-head">
-      <h1>เฉลย</h1>
+      <h1>เฉลย – คำตอบสุดท้ายเท่านั้น</h1>
       <p class="muted">ฝั่งซ้าย: <b>แถวคี่ (1,3,5)</b> | ฝั่งขวา: <b>แถวคู่ (2,4,6)</b></p>
     </div>
     <div class="solutions">
@@ -129,7 +125,7 @@
 </div>
 
 <script>
-/* ------------------ helpers ------------------ */
+/* ------------ helpers ------------ */
 const rint = (a,b)=> Math.floor(Math.random()*(b-a+1))+a;
 const deepCopy = (o)=> JSON.parse(JSON.stringify(o));
 function makeMatrix(r,c,pick=()=>rint(-5,5)){const m=[];for(let i=0;i<r;i++){const row=[];for(let j=0;j<c;j++)row.push(pick());m.push(row)}return m}
@@ -144,65 +140,65 @@ const coefNZ = ()=> [-3,-2,-1,1,2,3][rint(0,5)];
 const term = (k,s)=> k===1?s:(k===-1?'−'+s:(k<0?'−'+Math.abs(k):k)+s);
 const linComb = (k,l)=> term(k,'A')+(l>=0?' + ':' − ')+(Math.abs(l)===1?'B':Math.abs(l)+'B');
 
-/* ---------- blueprints ---------- */
+/* ---------- blueprints: ไม่มีเลขข้อในตัวข้อความ ---------- */
 function makeBlueprints(){
   const bp = [];
-  bp.push({id:1, type:'A+B', dims:[2,3], prompt:'ข้อ 1) จงหาเมทริกซ์ A + B '});
-  bp.push({id:2, type:'A-B', dims:[3,3], prompt:'ข้อ 2) จงหาเมทริกซ์ A − B '});
+  bp.push({type:'A+B', dims:[2,3], title:'จงหาเมทริกซ์ A + B (2×3)'});                  // 1
+  bp.push({type:'A-B', dims:[3,3], title:'จงหาเมทริกซ์ A − B (3×3)'});                  // 2
   const k3=coefNZ(), l3=coefNZ();
-  bp.push({id:3, type:'kA+lB', dims:[2,2], k:k3, l:l3, prompt:`ข้อ 3) จงหาเมทริกซ์ ${linComb(k3,l3)} `});
+  bp.push({type:'kA+lB', dims:[2,2], k:k3, l:l3, title:`จงหาเมทริกซ์ ${linComb(k3,l3)} (2×2)`}); // 3
   const a4=rint(1,3), c4=rint(-5,5), pos4=[rint(0,1), rint(0,1)], x4=rint(-5,5);
-  bp.push({id:4, type:'solveX', dims:[2,2], a:a4, c:c4, pos:pos4, x:x4, prompt:'ข้อ 4) ให้เมทริกซ์ A = B จงหาค่าของ x'});
-  bp.push({id:5, type:'mul', dims:[2,2], prompt:'ข้อ 5) จงหาเมทริกซ์ A × B '});
+  bp.push({type:'solveX', dims:[2,2], a:a4, c:c4, pos:pos4, x:x4, title:'ให้เมทริกซ์ A = B (2×2) จงหาค่า x'}); // 4
+  bp.push({type:'mul', dims:[2,2], title:'จงหาเมทริกซ์ A × B (2×2)'});                   // 5
   const op6 = Math.random()<.5 ? '+' : '−';
-  bp.push({id:6, type:'At±B', dims:[2,3], op:op6, prompt:`ข้อ 6) จงหาเมทริกซ์ Aᵀ ${op6} B `});
-  bp.push({id:7, type:'2A+3Bt', dims:[2,2], prompt:'ข้อ 7) จงหาเมทริกซ์ 2A + 3Bᵀ '});
-  bp.push({id:8, type:'det2', dims:[2,2], prompt:'ข้อ 8) จงหา det(A) '});
-  bp.push({id:9, type:'det3', dims:[3,3], prompt:'ข้อ 9) จงหา det(A) '});
+  bp.push({type:'At±B', dims:[2,3], op:op6, title:`จงหาเมทริกซ์ Aᵀ ${op6} B (A 2×3, B 3×2)`}); // 6
+  bp.push({type:'2A+3Bt', dims:[2,2], title:'จงหาเมทริกซ์ 2A + 3Bᵀ (2×2)'});              // 7
+  bp.push({type:'det2', dims:[2,2], title:'จงหา det(A) ของเมทริกซ์ 2×2'});               // 8
+  bp.push({type:'det3', dims:[3,3], title:'จงหา det(A) ของเมทริกซ์ 3×3'});               // 9
   const k10=coefNZ(), l10=coefNZ();
-  bp.push({id:10, type:'det(kA+lB)', dims:[2,2], k:k10, l:l10, prompt:`ข้อ 10) จงหา det ของ ${linComb(k10,l10)} `});
+  bp.push({type:'det(kA+lB)', dims:[2,2], k:k10, l:l10, title:`คำนวณ ${linComb(k10,l10)} แล้วหา det (2×2)`}); // 10
   return bp;
 }
 
-/* ---------- build sets ---------- */
+/* ---------- จาก blueprint สร้างโจทย์แต่ละฝั่ง ---------- */
 function buildSetFromBP(bp){
   const qs = [];
   for(const b of bp){
     if(b.type==='A+B'){
       const A=makeMatrix(2,3), B=makeMatrix(2,3);
-      qs.push({id:b.id, kind:'matrix', prompt:b.prompt, data:{A,B}, answer:add(A,B)});
+      qs.push({kind:'matrix', title:b.title, data:{A,B}, answer:add(A,B)});
     } else if(b.type==='A-B'){
       const A=makeMatrix(3,3), B=makeMatrix(3,3);
-      qs.push({id:b.id, kind:'matrix', prompt:b.prompt, data:{A,B}, answer:sub(A,B)});
+      qs.push({kind:'matrix', title:b.title, data:{A,B}, answer:sub(A,B)});
     } else if(b.type==='kA+lB'){
       const A=makeMatrix(2,2), B=makeMatrix(2,2);
       const ans = add( scalar(A,b.k), scalar(B,b.l) );
-      qs.push({id:b.id, kind:'matrix', prompt:b.prompt, data:{A,B,k:b.k,l:b.l}, answer:ans});
+      qs.push({kind:'matrix', title:b.title, data:{A,B,k:b.k,l:b.l}, answer:ans});
     } else if(b.type==='solveX'){
       const base=makeMatrix(2,2), A=deepCopy(base), B=deepCopy(base);
       const [i,j]=b.pos, a=b.a, c=b.c, x=b.x, y=a*x+c;
       A[i][j]=(a===1?'x':a+'x')+(c===0?'':(c>0?('+'+c):c));
       B[i][j]=y;
-      qs.push({id:b.id, kind:'number', prompt:b.prompt, data:{A,B,a,c,pos:b.pos}, answer:x});
+      qs.push({kind:'number', title:b.title, data:{A,B,a,c,pos:b.pos}, answer:x});
     } else if(b.type==='mul'){
       const A=makeMatrix(2,2), B=makeMatrix(2,2);
-      qs.push({id:b.id, kind:'matrix', prompt:b.prompt, data:{A,B}, answer:mul2x2(A,B)});
+      qs.push({kind:'matrix', title:b.title, data:{A,B}, answer:mul2x2(A,B)});
     } else if(b.type==='At±B'){
       const A=makeMatrix(2,3), B=makeMatrix(3,2), At=transpose(A);
       const ans = b.op==='+' ? add(At,B) : sub(At,B);
-      qs.push({id:b.id, kind:'matrix', prompt:b.prompt, data:{A,B,op:b.op}, answer:ans});
+      qs.push({kind:'matrix', title:b.title, data:{A,B,op:b.op}, answer:ans});
     } else if(b.type==='2A+3Bt'){
       const A=makeMatrix(2,2), B=makeMatrix(2,2);
-      qs.push({id:b.id, kind:'matrix', prompt:b.prompt, data:{A,B}, answer:add(scalar(A,2), scalar(transpose(B),3))});
+      qs.push({kind:'matrix', title:b.title, data:{A,B}, answer:add(scalar(A,2), scalar(transpose(B),3))});
     } else if(b.type==='det2'){
       const A=makeMatrix(2,2);
-      qs.push({id:b.id, kind:'number', prompt:b.prompt, data:{A}, answer:det2(A)});
+      qs.push({kind:'number', title:b.title, data:{A}, answer:det2(A)});
     } else if(b.type==='det3'){
       const A=makeMatrix(3,3);
-      qs.push({id:b.id, kind:'number', prompt:b.prompt, data:{A}, answer:det3(A)});
+      qs.push({kind:'number', title:b.title, data:{A}, answer:det3(A)});
     } else if(b.type==='det(kA+lB)'){
       const A=makeMatrix(2,2), B=makeMatrix(2,2), C=add(scalar(A,b.k), scalar(B,b.l));
-      qs.push({id:b.id, kind:'number', prompt:b.prompt, data:{A,B,k:b.k,l:b.l}, answer:det2(C)});
+      qs.push({kind:'number', title:b.title, data:{A,B,k:b.k,l:b.l}, answer:det2(C)});
     }
   }
   return qs;
@@ -221,11 +217,22 @@ const topbar = document.getElementById('topbar');
 let bp = makeBlueprints();
 let leftQs = buildSetFromBP(bp);
 let rightQs = buildSetFromBP(bp);
+
+/* === สุ่มลำดับ 10 ข้อให้เหมือนกันทั้งสองฝั่ง === */
+const order = Array.from({length: leftQs.length}, (_,i)=>i);
+// Fisher–Yates
+for (let i = order.length - 1; i > 0; i--) {
+  const j = Math.floor(Math.random() * (i + 1));
+  [order[i], order[j]] = [order[j], order[i]];
+}
+leftQs  = order.map(i => leftQs[i]);
+rightQs = order.map(i => rightQs[i]);
+
 let idx = 0;
 
 function fmtM(M){let h='<div class="mwrap"><table class="matrix">';for(let i=0;i<M.length;i++){h+='<tr>';for(let j=0;j<M[0].length;j++)h+=`<td>${M[i][j]}</td>`;h+='</tr>'}h+='</table></div>';return h}
-function renderOne(q){
-  let html = `<div style="font-weight:700;margin-bottom:8px">${q.prompt}</div>`;
+function renderOne(q, nIdx){
+  let html = `<div style="font-weight:700;margin-bottom:8px">ข้อ ${nIdx+1}) ${q.title}</div>`;
   if(q.data){
     if(q.data.A) html += `<div class="mx"><span class="badge">A</span>${fmtM(q.data.A)}</div>`;
     if(q.data.B) html += `<div class="mx"><span class="badge">B</span>${fmtM(q.data.B)}</div>`;
@@ -233,13 +240,13 @@ function renderOne(q){
   return html;
 }
 function renderPair(){
-  leftProblem.innerHTML = renderOne(leftQs[idx]);
-  rightProblem.innerHTML = renderOne(rightQs[idx]);
+  leftProblem.innerHTML  = renderOne(leftQs[idx], idx);
+  rightProblem.innerHTML = renderOne(rightQs[idx], idx);
   updateNavState();
 }
 function buildNav(){
   navGrid.innerHTML='';
-  for(let i=0;i<10;i++){
+  for(let i=0;i<leftQs.length;i++){
     const b=document.createElement('button');
     b.className='qbtn'; b.textContent=i+1;
     b.addEventListener('click',()=>{idx=i;renderPair();});
@@ -251,7 +258,7 @@ function updateNavState(){
   Array.from(navGrid.children).forEach((b,i)=> b.classList.toggle('current', i===idx));
 }
 document.getElementById('prevBtn').addEventListener('click',()=>{idx=Math.max(0,idx-1);renderPair();});
-document.getElementById('nextBtn').addEventListener('click',()=>{idx=Math.min(9,idx+1);renderPair();});
+document.getElementById('nextBtn').addEventListener('click',()=>{idx=Math.min(leftQs.length-1,idx+1);renderPair();});
 
 /* ---------- answers ---------- */
 function fmtAns(q){
@@ -260,8 +267,8 @@ function fmtAns(q){
 }
 function renderSolutions(){
   leftSolutions.innerHTML=''; rightSolutions.innerHTML='';
-  leftQs.forEach(q=>{const c=document.createElement('div');c.className='ans-card';c.innerHTML=`<div><strong>ข้อ ${q.id}</strong></div>${fmtAns(q)}`;leftSolutions.appendChild(c);});
-  rightQs.forEach(q=>{const c=document.createElement('div');c.className='ans-card';c.innerHTML=`<div><strong>ข้อ ${q.id}</strong></div>${fmtAns(q)}`;rightSolutions.appendChild(c);});
+  leftQs.forEach((q,i)=>{const c=document.createElement('div');c.className='ans-card';c.innerHTML=`<div><strong>ข้อ ${i+1}</strong> — ${q.title}</div>${fmtAns(q)}`;leftSolutions.appendChild(c);});
+  rightQs.forEach((q,i)=>{const c=document.createElement('div');c.className='ans-card';c.innerHTML=`<div><strong>ข้อ ${i+1}</strong> — ${q.title}</div>${fmtAns(q)}`;rightSolutions.appendChild(c);});
 }
 document.getElementById('showAns').addEventListener('click',()=>{
   renderSolutions(); qView.style.display='none'; aView.style.display='block'; topbar.style.display='none';
