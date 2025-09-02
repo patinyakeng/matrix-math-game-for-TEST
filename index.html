@@ -105,7 +105,7 @@
   <!-- ANSWERS -->
   <section id="aView" class="card" style="display:none">
     <div class="sticky-head">
-      <h1>เฉลย – คำตอบสุดท้ายเท่านั้น</h1>
+      <h1>เฉลย – คำถามเต็ม + คำตอบ</h1>
       <p class="muted">ฝั่งซ้าย: <b>แถวคี่ (1,3,5)</b> | ฝั่งขวา: <b>แถวคู่ (2,4,6)</b></p>
     </div>
     <div class="solutions">
@@ -140,23 +140,23 @@ const coefNZ = ()=> [-3,-2,-1,1,2,3][rint(0,5)];
 const term = (k,s)=> k===1?s:(k===-1?'−'+s:(k<0?'−'+Math.abs(k):k)+s);
 const linComb = (k,l)=> term(k,'A')+(l>=0?' + ':' − ')+(Math.abs(l)===1?'B':Math.abs(l)+'B');
 
-/* ---------- blueprints: ไม่มีเลขข้อในตัวข้อความ ---------- */
+/* ---------- blueprints: ตัดข้อความมิติออก ---------- */
 function makeBlueprints(){
   const bp = [];
-  bp.push({type:'A+B', dims:[2,3], title:'จงหาเมทริกซ์ A + B (2×3)'});                  // 1
-  bp.push({type:'A-B', dims:[3,3], title:'จงหาเมทริกซ์ A − B (3×3)'});                  // 2
+  bp.push({type:'A+B',    dims:[2,3], title:'จงหาเมทริกซ์ A + B'});
+  bp.push({type:'A-B',    dims:[3,3], title:'จงหาเมทริกซ์ A − B'});
   const k3=coefNZ(), l3=coefNZ();
-  bp.push({type:'kA+lB', dims:[2,2], k:k3, l:l3, title:`จงหาเมทริกซ์ ${linComb(k3,l3)} (2×2)`}); // 3
+  bp.push({type:'kA+lB',  dims:[2,2], k:k3, l:l3, title:`จงหาเมทริกซ์ ${linComb(k3,l3)}`});
   const a4=rint(1,3), c4=rint(-5,5), pos4=[rint(0,1), rint(0,1)], x4=rint(-5,5);
-  bp.push({type:'solveX', dims:[2,2], a:a4, c:c4, pos:pos4, x:x4, title:'ให้เมทริกซ์ A = B (2×2) จงหาค่า x'}); // 4
-  bp.push({type:'mul', dims:[2,2], title:'จงหาเมทริกซ์ A × B (2×2)'});                   // 5
+  bp.push({type:'solveX', dims:[2,2], a:a4, c:c4, pos:pos4, x:x4, title:'ให้เมทริกซ์ A = B จงหาค่าของ x'});
+  bp.push({type:'mul',    dims:[2,2], title:'จงหาเมทริกซ์ A × B'});
   const op6 = Math.random()<.5 ? '+' : '−';
-  bp.push({type:'At±B', dims:[2,3], op:op6, title:`จงหาเมทริกซ์ Aᵀ ${op6} B (A 2×3, B 3×2)`}); // 6
-  bp.push({type:'2A+3Bt', dims:[2,2], title:'จงหาเมทริกซ์ 2A + 3Bᵀ (2×2)'});              // 7
-  bp.push({type:'det2', dims:[2,2], title:'จงหา det(A) ของเมทริกซ์ 2×2'});               // 8
-  bp.push({type:'det3', dims:[3,3], title:'จงหา det(A) ของเมทริกซ์ 3×3'});               // 9
+  bp.push({type:'At±B',   dims:[2,3], op:op6, title:`จงหาเมทริกซ์ Aᵀ ${op6} B`});
+  bp.push({type:'2A+3Bt', dims:[2,2], title:'จงหาเมทริกซ์ 2A + 3Bᵀ'});
+  bp.push({type:'det2',   dims:[2,2], title:'จงหา det(A)'});
+  bp.push({type:'det3',   dims:[3,3], title:'จงหา det(A)'});
   const k10=coefNZ(), l10=coefNZ();
-  bp.push({type:'det(kA+lB)', dims:[2,2], k:k10, l:l10, title:`คำนวณ ${linComb(k10,l10)} แล้วหา det (2×2)`}); // 10
+  bp.push({type:'det(kA+lB)', dims:[2,2], k:k10, l:l10, title:`จงหา det ของ ${linComb(k10,l10)} `});
   return bp;
 }
 
@@ -220,7 +220,6 @@ let rightQs = buildSetFromBP(bp);
 
 /* === สุ่มลำดับ 10 ข้อให้เหมือนกันทั้งสองฝั่ง === */
 const order = Array.from({length: leftQs.length}, (_,i)=>i);
-// Fisher–Yates
 for (let i = order.length - 1; i > 0; i--) {
   const j = Math.floor(Math.random() * (i + 1));
   [order[i], order[j]] = [order[j], order[i]];
@@ -230,14 +229,21 @@ rightQs = order.map(i => rightQs[i]);
 
 let idx = 0;
 
-function fmtM(M){let h='<div class="mwrap"><table class="matrix">';for(let i=0;i<M.length;i++){h+='<tr>';for(let j=0;j<M[0].length;j++)h+=`<td>${M[i][j]}</td>`;h+='</tr>'}h+='</table></div>';return h}
-function renderOne(q, nIdx){
-  let html = `<div style="font-weight:700;margin-bottom:8px">ข้อ ${nIdx+1}) ${q.title}</div>`;
+function fmtM(M){
+  let h='<div class="mwrap"><table class="matrix">';
+  for(let i=0;i<M.length;i++){h+='<tr>';for(let j=0;j<M[0].length;j++)h+=`<td>${M[i][j]}</td>`;h+='</tr>'}
+  h+='</table></div>';return h
+}
+function renderQuestionBody(q){
+  let html = '';
   if(q.data){
     if(q.data.A) html += `<div class="mx"><span class="badge">A</span>${fmtM(q.data.A)}</div>`;
     if(q.data.B) html += `<div class="mx"><span class="badge">B</span>${fmtM(q.data.B)}</div>`;
   }
   return html;
+}
+function renderOne(q, nIdx){
+  return `<div style="font-weight:700;margin-bottom:8px">ข้อ ${nIdx+1}) ${q.title}</div>${renderQuestionBody(q)}`;
 }
 function renderPair(){
   leftProblem.innerHTML  = renderOne(leftQs[idx], idx);
@@ -260,15 +266,33 @@ function updateNavState(){
 document.getElementById('prevBtn').addEventListener('click',()=>{idx=Math.max(0,idx-1);renderPair();});
 document.getElementById('nextBtn').addEventListener('click',()=>{idx=Math.min(leftQs.length-1,idx+1);renderPair();});
 
-/* ---------- answers ---------- */
+/* ---------- answers (แสดงโจทย์เต็ม + คำตอบ) ---------- */
 function fmtAns(q){
   if(q.kind==='number') return `<div class="mwrap" style="display:inline-block"><b>${q.answer}</b></div>`;
   return fmtM(q.answer);
 }
 function renderSolutions(){
   leftSolutions.innerHTML=''; rightSolutions.innerHTML='';
-  leftQs.forEach((q,i)=>{const c=document.createElement('div');c.className='ans-card';c.innerHTML=`<div><strong>ข้อ ${i+1}</strong> — ${q.title}</div>${fmtAns(q)}`;leftSolutions.appendChild(c);});
-  rightQs.forEach((q,i)=>{const c=document.createElement('div');c.className='ans-card';c.innerHTML=`<div><strong>ข้อ ${i+1}</strong> — ${q.title}</div>${fmtAns(q)}`;rightSolutions.appendChild(c);});
+  leftQs.forEach((q,i)=>{
+    const c=document.createElement('div'); c.className='ans-card';
+    c.innerHTML = `
+      <div style="font-weight:700;margin-bottom:8px">ข้อ ${i+1}) ${q.title}</div>
+      ${renderQuestionBody(q)}
+      <div class="muted" style="margin-top:8px">คำตอบ:</div>
+      ${fmtAns(q)}
+    `;
+    leftSolutions.appendChild(c);
+  });
+  rightQs.forEach((q,i)=>{
+    const c=document.createElement('div'); c.className='ans-card';
+    c.innerHTML = `
+      <div style="font-weight:700;margin-bottom:8px">ข้อ ${i+1}) ${q.title}</div>
+      ${renderQuestionBody(q)}
+      <div class="muted" style="margin-top:8px">คำตอบ:</div>
+      ${fmtAns(q)}
+    `;
+    rightSolutions.appendChild(c);
+  });
 }
 document.getElementById('showAns').addEventListener('click',()=>{
   renderSolutions(); qView.style.display='none'; aView.style.display='block'; topbar.style.display='none';
